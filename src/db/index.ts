@@ -11,10 +11,19 @@ const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
 };
 
+// Neon and other cloud providers require SSL
+const isSSL =
+  databaseUrl.includes("neon.tech") ||
+  databaseUrl.includes("supabase") ||
+  databaseUrl.includes("sslmode=require");
+
 export const pool =
   globalForDb.__arenaNextJsPostgresqlPool ??
   new Pool({
     connectionString: databaseUrl,
+    ssl: isSSL ? { rejectUnauthorized: false } : false,
+    max: 5,
+    connectionTimeoutMillis: 10000,
   });
 
 if (process.env.NODE_ENV !== "production") {

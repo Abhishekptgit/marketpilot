@@ -11,7 +11,11 @@ async function seed() {
     console.error("❌ DATABASE_URL not set. Pass it as env variable or create a .env file.");
     process.exit(1);
   }
-  const pool = new Pool({ connectionString: dbUrl });
+  const isSSL = dbUrl.includes("neon.tech") || dbUrl.includes("supabase") || dbUrl.includes("sslmode=require");
+  const pool = new Pool({
+    connectionString: dbUrl,
+    ssl: isSSL ? { rejectUnauthorized: false } : false,
+  });
   const db = drizzle(pool);
 
   console.log("🌱 Seeding database...");

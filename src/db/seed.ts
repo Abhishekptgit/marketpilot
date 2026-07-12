@@ -11,10 +11,19 @@ async function seed() {
     console.error("❌ DATABASE_URL not set. Pass it as env variable or create a .env file.");
     process.exit(1);
   }
-  const isSSL = dbUrl.includes("neon.tech") || dbUrl.includes("supabase") || dbUrl.includes("sslmode=require");
+  // Clean channel_binding param that pg driver doesn't support
+  let cleanUrl = dbUrl;
+  try {
+    const parsed = new URL(dbUrl);
+    parsed.searchParams.delete("channel_binding");
+    cleanUrl = parsed.toString();
+  } catch {
+    cleanUrl = dbUrl.replace(/[&?]channel_binding=[^&]*/g, "").replace(/\?&/, "?");
+  }
+
   const pool = new Pool({
-    connectionString: dbUrl,
-    ssl: isSSL ? { rejectUnauthorized: false } : false,
+    connectionString: cleanUrl,
+    ssl: { rejectUnauthorized: false },
   });
   const db = drizzle(pool);
 

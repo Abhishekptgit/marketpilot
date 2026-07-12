@@ -72,6 +72,6 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("Signup error:", message, error);
-    return NextResponse.json({ error: process.env.NODE_ENV === "production" ? "Internal server error" : message }, { status: 500 });
+    return NextResponse.json({ error: "Server error: " + message }, { status: 500 });
   }
 }

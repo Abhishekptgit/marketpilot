@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { companies, users, categories, events, posts, shareLinks } from "./schema";
@@ -5,7 +6,12 @@ import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 
 async function seed() {
-  const pool = new Pool({ connectionString: "postgresql://postgres:postgres@127.0.0.1:5432/app_db" });
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error("❌ DATABASE_URL not set. Pass it as env variable or create a .env file.");
+    process.exit(1);
+  }
+  const pool = new Pool({ connectionString: dbUrl });
   const db = drizzle(pool);
 
   console.log("🌱 Seeding database...");
